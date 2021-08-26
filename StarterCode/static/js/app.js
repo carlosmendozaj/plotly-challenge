@@ -1,136 +1,116 @@
-function getData (){
+/**
+ * This function is in charge to render the dashboard
+ * Receives a subjectId whis is used to filter the data and
+ * call the functions to build the asked charts.
+ * @param {*} subjectId This value is used to filter the data
+ */
+ function showDashboard(subjectId){
     d3.json("samples.json").then((data) => {
-      console.log(data);
+        
+        var names = data.names;
+        var metadata = data.metadata;
+        var samples = data.samples;
+        
+        //var firstElement = samples[0].id;
+        var oneSample = samples.filter(element => element.id === subjectId)[0];
+        var oneMetadata = metadata.filter(element => element.id === parseInt(subjectId))[0];
+        //console.log(names);        
 
-      // Dropdown
-      var subjectId = d3.select("#selDataset"); 
-      var allIds = data.names; 
-    
-    
-    allIds.map(id => {subjectId.append("option").text(id);
+        var sample_values = oneSample.sample_values;
+        var sliced_sample_values = sample_values.slice(0,10);
+
+        var otu_ids = oneSample.otu_ids;
+        console.log(otu_ids);
+        var sliced_otu_ids= otu_ids.map(x => 'OTU '+x).slice(0,10);
+        
+        var otu_labels = oneSample.otu_labels;
+        var sliced_otu_labels = otu_labels.slice(0,10);
+        
+        fillDropDown(names);
+        fillMetaData(oneMetadata);
+        barChart(sliced_sample_values, sliced_otu_ids, sliced_otu_labels);
+        gaugeChart(oneMetadata.wfreq);
+        bubbleChart(otu_ids, sample_values, otu_labels);
     });
+}
 
-    
-     var metadata = data.metadata; 
-    
-      // Event handlers 
-      var subjectId = d3.select("#selDataset");
-      subjectId.on("change",getData); 
+/**
+ * Fills the metadata section
+ * @param {*} oneMetadata the metadata info
+ */
+ function fillMetaData(oneMetadata){
+    var div = d3.select("#sample-metadata")
+    div.html("");
+    div.append("p").text(`ID: ${oneMetadata.id}`);
+    div.append("p").text(`ETHNICITY: ${oneMetadata.ethnicity}`);
+    div.append("p").text(`GENDER: ${oneMetadata.gender}`);
+    div.append("p").text(`AGE: ${oneMetadata.age}`);
+    div.append("p").text(`LOCATION: ${oneMetadata.location}`);
+    div.append("p").text(`BBTYPE: ${oneMetadata.bbtype}`);
+    div.append("p").text(`WFREQ: ${oneMetadata.wfreq}`);
+}
 
-      
-      var selection = subjectId.property("value");
+/**
+ * Builds a barchart
+ * @param {*} sample_values the sample values for the x axis
+ * @param {*} otu_ids the otu ids for the y axis
+ * @param {*} otu_labels the otu labels
+ */
+function barChart(sample_values, otu_ids, otu_labels){
+    var data = [{
+        type: 'bar',
+        x: sample_values.reverse(),
+        y: otu_ids.reverse(),
+        orientation: 'h',
+        text:otu_labels.reverse()
+      }];
     
-   
-      var selected = data.names.indexOf(selection);
-    
-     // Check this function--> var selected = data.filter(id => id.id == selection);
-      // Obtaining the data from "samples"
-    
-      var sample_values = data.samples[selected].sample_values.slice(0,10).reverse();
-      var otu_ids = data.samples[selected].otu_ids.slice(0,10);
-      var otu_labels = data.samples[selected].otu_labels.slice(0,10);
-      var otuIds = otu_ids.map(d => "OTU " + d)
-    
-    
-    // Create the Trace for the Bar Chart 
-        var trace = {
-          x: sample_values,
-          y: otuIds,
-          type: "bar",
-          orientation: 'h',
-          text: otu_labels
-        };
-        var dataBar = [trace];
-    
-    // Define the plot layout
-    var layoutBar = {
-      title: "Top 10 Bacteria Cultures Found",
-      titlefont: {size: 24},
-    };
-    
-    // Plot the chart to a div tag with id "bar"
-    Plotly.newPlot("bar", dataBar, layoutBar);
-    
-    // ------------------------------------------------- 
-    // Create the Trace for the Bubble Chart 
+      Plotly.newPlot('bar', data);
+
+}
+
+/**
+ * Builds a bubble chart
+ * @param {*} otu_ids the out ids for the x axis
+ * @param {*} sample_values the sample values for the y axis
+ * @param {*} otu_labels the otu labels
+ */
+function bubbleChart(otu_ids, sample_values, otu_labels){
     var trace1 = {
-      x: otu_ids,
-      y: sample_values,
-      text: sample_values.toString(),
-      mode: 'markers',
-      marker: {
-        color: otu_ids,
-        colorscale: 'Portland',
-        size: sample_values
-      }
-    };
-    var dataBubble = [trace1];
-    
-    // Define the Bubble layout
-    var layoutBubble = {
-    title: "Bacteria Cultures Per Samble",
-    titlefont: {size: 24},
-    xaxis: {title: "OTU ID"}
-    
-    };
-    
-    // Plot the chart to a div tag with id "bubble"
-    Plotly.newPlot("bubble", dataBubble, layoutBubble);
-    
-    
-    // Table 
-    var sampleMetadata = d3.select("#sample-metadata"); 
-    sampleMetadata.html("");
-    var tableID = metadata.find(element => element.id == selection);
-    Object.entries(tableID).find(([key, value]) => {
-      sampleMetadata.append("p").text(`${key}: ${value}`);
-      })
-    
-    
-    // Exercise with tutor ---> use of .filter() 
-    
-    var metadataArr = metadata.filter(id => id.id == selection)[0];
-    console.log(metadataArr.wfreq);
-    
-    // Create the Trace for the Gauge Chart 
-    
-    var dataGauge = [{
-      domain: { x: [0, 1], y: [0, 1] },
-      value: metadataArr.wfreq,
-      title: { text: "Scrubs per week" },
-      type: "indicator",
-      mode: "gauge",
-      text: metadataArr.wfreq,
-      gauge: {
-        axis: { range: [null, 9] },
-      threshold: {
-          line: { color: "#8B008B", width: 5 },
-          thickness: 0.75,
-          value: metadataArr.wfreq},
-      steps: [
-        { range: [0, 9], color: "#DCDCDC" },
-        { range: [1, 2], color: "#DCDCDC" },
-        { range: [2, 3], color: "#D3D3D3" },
-        { range: [3, 4], color: "#D3D3D3" },
-        { range: [4, 5], color: "#C0C0C0" },
-        { range: [5, 6], color: "#C0C0C0" },
-        { range: [6, 7], color: "#A9A9A9" },
-        { range: [7, 8], color: "#A9A9A9" },
-        { range: [8, 9], color: "#808080" }],
-    
-      }
-    }];
-    
-    // Define the Bubble layout
-    var layoutBubble = {
-    title: "Belly Button Washing Frequency",
-    titlefont: {size: 24},
-    };
-    
-    // Plot the chart to a div tag with id "bubble"
-    Plotly.newPlot("gauge", dataGauge, layoutBubble);
-    
-    
-    });
-    } 
-    getData();
+        x: otu_ids,
+        y: sample_values,
+        text:otu_labels,
+        mode: 'markers',
+        marker: {
+          color: otu_ids,
+          sizeref: 1.2,
+          size: sample_values
+        }
+      };
+      
+      var data = [trace1];
+      
+      var layout = {
+        showlegend: false,
+        xaxis: {
+            title: {
+              text: 'OTU ID',
+            }
+          }
+      };
+      
+      Plotly.newPlot('bubble', data, layout, {scrollZoom: true});
+}
+
+/**
+ * This function updates the charts according to the selected ID
+ * @param {*} id the ID to search for 
+ */
+function optionChanged(id){
+    showDashboard(id);
+}
+
+/**
+ * This first call initializes the dashboard.
+ */
+showDashboard('940');
