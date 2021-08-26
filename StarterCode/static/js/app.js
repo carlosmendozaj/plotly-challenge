@@ -1,7 +1,8 @@
 function getData (){
     d3.json("samples.json").then((data) => {
       console.log(data);
-      // Creating the dropdown 
+
+      // Dropdown
       var subjectId = d3.select("#selDataset"); 
       var allIds = data.names; 
     
@@ -15,12 +16,11 @@ function getData (){
       // Event handlers 
       var subjectId = d3.select("#selDataset");
       subjectId.on("change",getData); 
-    
-      // ID selection 
+
       
       var selection = subjectId.property("value");
     
-      // Got help to obtain this line. 
+   
       var selected = data.names.indexOf(selection);
     
      // Check this function--> var selected = data.filter(id => id.id == selection);
