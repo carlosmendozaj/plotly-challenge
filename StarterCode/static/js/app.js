@@ -101,16 +101,3 @@ function bubbleChart(otu_ids, sample_values, otu_labels){
       
       Plotly.newPlot('bubble', data, layout, {scrollZoom: true});
 }
-
-/**
- * This function updates the charts according to the selected ID
- * @param {*} id the ID to search for 
- */
-function optionChanged(id){
-    showDashboard(id);
-}
-
-/**
- * This first call initializes the dashboard.
- */
-showDashboard('940');
