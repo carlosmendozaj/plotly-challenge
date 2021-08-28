@@ -1,9 +1,4 @@
-/**
- * This function is in charge to render the dashboard
- * Receives a subjectId whis is used to filter the data and
- * call the functions to build the asked charts.
- * @param {*} subjectId This value is used to filter the data
- */
+
  function showDashboard(subjectId){
     d3.json("samples.json").then((data) => {
         
@@ -61,12 +56,7 @@ function barChart(sample_values, otu_ids, otu_labels){
 
 }
 
-/**
- * Builds a bubble chart
- * @param {*} otu_ids 
- * @param {*} sample_values 
- * @param {*} otu_labels 
- */
+
 function bubbleChart(otu_ids, sample_values, otu_labels){
     var trace1 = {
         x: otu_ids,
