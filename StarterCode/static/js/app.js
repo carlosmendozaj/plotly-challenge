@@ -34,10 +34,7 @@
     });
 }
 
-/**
- * Fills the metadata section
- * @param {*} oneMetadata the metadata info
- */
+
  function fillMetaData(oneMetadata){
     var div = d3.select("#sample-metadata")
     div.html("");
@@ -50,12 +47,7 @@
     div.append("p").text(`WFREQ: ${oneMetadata.wfreq}`);
 }
 
-/**
- * Builds a barchart
- * @param {*} sample_values the sample values for the x axis
- * @param {*} otu_ids the otu ids for the y axis
- * @param {*} otu_labels the otu labels
- */
+
 function barChart(sample_values, otu_ids, otu_labels){
     var data = [{
         type: 'bar',
@@ -71,9 +63,9 @@ function barChart(sample_values, otu_ids, otu_labels){
 
 /**
  * Builds a bubble chart
- * @param {*} otu_ids the out ids for the x axis
- * @param {*} sample_values the sample values for the y axis
- * @param {*} otu_labels the otu labels
+ * @param {*} otu_ids 
+ * @param {*} sample_values 
+ * @param {*} otu_labels 
  */
 function bubbleChart(otu_ids, sample_values, otu_labels){
     var trace1 = {
